@@ -1,0 +1,124 @@
+create table empleados (id int primary key auto_increment, nombre varchar(50), 
+apellido varchar(50), fecha date, salario int, rfc varchar(13));
+
+alter table empleados add apellido_mat varchar(50) after apellido;*/
+#TRIGGERS
+#SE HACEN AUTOMATICAMENTE
+#UN TRIGGER POR ACCION
+#EN BEFORE UPDATE
+#VALORES VIEJOS: ACTUALIZAR 
+#VALORES NUEVOS: 
+#AFTER UDPDATE SOLO HAY VALORES NUEVOS
+/*
+insert into empleados(nombre,apellido,apellido_mat,fecha,salario) 
+values('Jose','Perez','Jolote','1990-11-12',10000);
+
+#BEFORE INSERT
+CREATE DEFINER=`root`@`localhost` TRIGGER `empleados_BEFORE_INSERT` BEFORE INSERT ON `empleados` FOR EACH ROW BEGIN
+	if New.salario < 10000 then
+    #EXCEPCION
+    #45000 numero para las excepciones generadas por el programador
+		signal sqlstate '45000' set message_text = 'PAGA MAS TACAÑO';
+    end if;
+    
+    SET New.rfc = generar_rfc(New.nombre,New.apellido,New.apellido_mat,New.fecha);
+END
+
+create table salarios(total_salarios int);
+
+#AFTER INSERT
+CREATE DEFINER=`root`@`localhost` TRIGGER `empleados_AFTER_INSERT` AFTER INSERT ON `empleados` FOR EACH ROW BEGIN
+	declare total_sal int;
+    select sum(salario) into total_sal
+    from empleados;
+    update salarios
+    set total_salarios = total_sal;
+END
+
+
+
+
+MySQL Shell 8.0.12
+
+Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type '\help' or '\?' for help; '\quit' to exit.
+
+
+MySQL JS> \sql
+Switching to SQL mode... Commands end with ;
+
+MySQL SQL> \connect -c root@localhost
+The -c option is deprecated, please use --mysql or -mc instead
+Creating a Classic session to 'root@localhost'
+Please provide the password for 'root@localhost': ********
+Save password for 'root@localhost:3306'? [Y]es/[N]o/Ne[v]er (default No): y
+Fetching schema names for autocompletion... Press ^C to stop.
+Your MySQL connection id is 11
+Server version: 8.0.12 MySQL Community Server - GPL
+No default schema selected; type \use <schema> to set one.
+
+MySQL [localhost ssl] SQL> \use evaluacion_3
+Default schema set to `evaluacion_3`.
+Fetching table and column names from `evaluacion_3` for auto-completion... Press ^C to stop.
+
+MySQL [localhost ssl/evaluacion_3] SQL> select * from empleados;
++----+--------+----------+--------------+------------+---------+--------------+
+| id | nombre | apellido | apellido_mat | fecha      | salario | rfc          |
++----+--------+----------+--------------+------------+---------+--------------+
+|  1 | Jose   | Perez    | Jolote       | 1990-11-12 |   10000 | PEJJ19901112 |
++----+--------+----------+--------------+------------+---------+--------------+
+1 row in set (0.0006 sec)
+
+MySQL [localhost ssl/evaluacion_3] SQL> insert into empleados(nombre,apellido,apellido_mat,fecha,sal
+ario)
+                                     -> values('Jose','Perez','Jolote','1990-11-12',1000);
+ERROR: 1644 (45000): PAGA MAS TACAÃ‘O
+
+MySQL [localhost ssl/evaluacion_3] SQL> insert into empleados(nombre,apellido,apellido_mat,fecha,sal
+ario)  values('Jose','Perez','Jolote','1990-11-12',15000);
+Query OK, 1 row affected (0.2242 sec)
+
+MySQL [localhost ssl/evaluacion_3] SQL> select * from salarios;
+Empty set (0.0023 sec)
+
+MySQL [localhost ssl/evaluacion_3] SQL> insert into salarios values(0);
+Query OK, 1 row affected (0.1288 sec)
+
+MySQL [localhost ssl/evaluacion_3] SQL> select * from salarios;
++----------------+
+| total_salarios |
++----------------+
+|              0 |
++----------------+
+1 row in set (0.0004 sec)
+
+MySQL [localhost ssl/evaluacion_3] SQL> insert into empleados(nombre,apellido,apellido_mat,fecha,sal
+ario)  values('Jose','Perez','Jolote','1990-11-12',15000);
+Query OK, 1 row affected (0.1941 sec)
+
+MySQL [localhost ssl/evaluacion_3] SQL> select * from salarios;
++----------------+
+| total_salarios |
++----------------+
+|          40000 |
++----------------+
+1 row in set (0.0004 sec)
+
+MySQL [localhost ssl/evaluacion_3] SQL> insert into empleados(nombre,apellido,apellido_mat,fecha,sal
+ario)  values('Jose','Perez','Jolote','1990-11-12',15000);
+Query OK, 1 row affected (0.1712 sec)
+
+MySQL [localhost ssl/evaluacion_3] SQL> select * from salarios;
++----------------+
+| total_salarios |
++----------------+
+|          55000 |
++----------------+
+1 row in set (0.0003 sec)
+
+MySQL [localhost ssl/evaluacion_3] SQL>

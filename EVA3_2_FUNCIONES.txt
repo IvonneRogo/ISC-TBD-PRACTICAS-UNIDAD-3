@@ -1,0 +1,28 @@
+set global log_bin_trust_function_creators = 1;
+
+create table temp(nombre varchar(5));
+insert into temp values('a'),('b'),('C'),('D');
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `SUMATORIA`(NUM INT) RETURNS int(11)
+
+BEGIN
+	
+DECLARE SUMATORIA INT;
+    
+SET SUMATORIA = 0;
+    
+/*CICLOS*/
+    
+SUMA_LOOP: LOOP /*ES UN CICLO*/
+		IF NUM > 0 THEN 
+			SET SUMATORIA = SUMATORIA + NUM;
+            SET NUM = NUM - 1;
+            ITERATE SUMA_LOOP;/*ESTA ES LA ITERACION, ESTE LO REPITE, O SEA VUELVE A 
+								LLAMAR A LA FUNCION*/
+        END IF;
+        LEAVE SUMA_LOOP;/*TERMINO CICLO*/
+    END LOOP SUMA_LOOP;
+    
+RETURN SUMATORIA;
+END
+

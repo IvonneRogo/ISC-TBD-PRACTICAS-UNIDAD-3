@@ -1,0 +1,133 @@
+create table ganancias(
+idventas int,
+ganancia double);
+
+
+
+insert into ventas(totalventa,precio_neto)
+values(5000,8000);
+
+
+
+insert into ventas(totalventa,precio_neto)
+values(5000,8000);
+
+MySQL Shell 8.0.12
+
+Copyright (c) 2016, 2018, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type '\help' or '\?' for help; '\quit' to exit.
+
+
+MySQL JS> \sql
+Switching to SQL mode... Commands end with ;
+
+MySQL SQL> \connect -c root@localhost
+The -c option is deprecated, please use --mysql or -mc instead
+Creating a Classic session to 'root@localhost'
+Please provide the password for 'root@localhost': ********
+Save password for 'root@localhost:3306'? [Y]es/[N]o/Ne[v]er (default No): y
+Fetching schema names for autocompletion... Press ^C to stop.
+Your MySQL connection id is 11
+Server version: 8.0.12 MySQL Community Server - GPL
+No default schema selected; type \use <schema> to set one.
+
+MySQL [localhost ssl] SQL> \use evaluacion_3
+Default schema set to `evaluacion_3`.
+Fetching table and column names from `evaluacion_3` for auto-completion... Press ^C to stop.
+
+MySQL [localhost ssl/evaluacion_3] SQL> desc ventas;
++-------------+---------+------+-----+---------+-------+
+| Field       | Type    | Null | Key | Default | Extra |
++-------------+---------+------+-----+---------+-------+
+| idventas    | int(11) | NO   | PRI | NULL    |       |
+| totalventa  | double  | YES  |     | NULL    |       |
+| precio_neto | double  | YES  |     | NULL    |       |
++-------------+---------+------+-----+---------+-------+
+3 rows in set (0.0024 sec)
+
+MySQL [localhost ssl/evaluacion_3] SQL> create table ganancias(
+                                     -> idventas int,
+                                     -> ganancia double);
+ERROR: 1050 (42S01): Table 'ganancias' already exists
+
+MySQL [localhost ssl/evaluacion_3] SQL> create table gananciass
+                                     -> (idventas int, ganancia double);
+Query OK, 0 rows affected (0.6662 sec)
+
+MySQL [localhost ssl/evaluacion_3] SQL> select * from ganancias;
++----------+----------+
+| idventas | ganancia |
++----------+----------+
+|        1 |    -3000 |
++----------+----------+
+1 row in set (0.0004 sec)
+
+MySQL [localhost ssl/evaluacion_3] SQL> update ventas
+                                     -> set totalventa = 70000
+                                     -> where idventas = 2;
+Query OK, 1 row affected (0.1056 sec)
+
+Rows matched: 1  Changed: 1  Warnings: 0
+
+MySQL [localhost ssl/evaluacion_3] SQL> select * from ganancias;
++----------+----------+
+| idventas | ganancia |
++----------+----------+
+|        1 |    -3000 |
+|        2 |    62000 |
++----------+----------+
+2 rows in set (0.0004 sec)
+
+MySQL [localhost ssl/evaluacion_3] SQL> select * from ventas;
++----------+------------+-------------+
+| idventas | totalventa | precio_neto |
++----------+------------+-------------+
+|        1 |       5000 |        8000 |
+|        2 |      70000 |        8000 |
++----------+------------+-------------+
+2 rows in set (0.0004 sec)
+
+MySQL [localhost ssl/evaluacion_3] SQL> DELETE FROM WENTAS WHERE IDVENTAS = 2;
+ERROR: 1146 (42S02): Table 'evaluacion_3.wentas' doesn't exist
+
+MySQL [localhost ssl/evaluacion_3] SQL> DELETE FROM VENTAS WHERE IDVENTAS = 2;
+Query OK, 1 row affected (0.1482 sec)
+
+MySQL [localhost ssl/evaluacion_3] SQL> select * from ganancias;
++----------+----------+
+| idventas | ganancia |
++----------+----------+
+|        1 |    -3000 |
++----------+----------+
+1 row in set (0.0004 sec)
+
+MySQL [localhost ssl/evaluacion_3] SQL>
+
+#AFTER INSERT
+CREATE DEFINER=`root`@`localhost` TRIGGER `ventas_AFTER_INSERT` AFTER INSERT ON `ventas` FOR EACH ROW BEGIN
+	declare gana double;
+    set gana = new.totalventa - new.precio_neto;
+	insert into ganancias
+    values(new.idventas, gana);
+END
+
+#AFTER UPDATE
+CREATE DEFINER=`root`@`localhost` TRIGGER `ventas_AFTER_UPDATE` AFTER UPDATE ON `ventas` FOR EACH ROW BEGIN
+	declare gana double;
+    set gana = new.totalventa - new.precio_neto;
+    update ganancias
+    set ganancia = gana
+    where idventas = old.idventas;
+END
+
+#AFTER DELETE
+CREATE DEFINER=`root`@`localhost` TRIGGER `ventas_AFTER_DELETE` AFTER DELETE ON `ventas` FOR EACH ROW BEGIN
+#SOLO OLD
+	delete from ganancias 
+    where idventas = old.idventas;
+END

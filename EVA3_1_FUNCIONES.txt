@@ -1,0 +1,33 @@
+CREATE DATABASE EVALUACION_3;
+
+USE EVALUACION_3;
+
+/*FUNCION*/
+CREATE DEFINER=`root`@`localhost` FUNCTION `SUMA_NUMEROS`(NUM1 INT,NUM2 INT) RETURNS int(11)
+BEGIN
+	
+	DECLARE SUMA INT;/*ECLARE: DECLARAR VARIABLES*/
+    
+	SET SUMA = NUM1 + NUM2;
+	
+	RETURN SUMA;
+
+END
+
+
+
+
+SELECT SUMA_NUMEROS(1,3) AS SUMA;
+
+USE NORTHWIND;
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `cuenta_clientes`() RETURNS int(11)
+BEGIN
+	
+	declare cont int;
+    
+	select count(*) into cont from customers;/*into: lo que se genera se guarda en cont*/
+	
+	RETURN count;
+
+END
